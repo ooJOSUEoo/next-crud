@@ -1,6 +1,8 @@
 'use client'
+import NoteCard from "@/components/NoteCard"
 import NoteForm from "@/components/NoteForm"
 import { useNoteStore } from "@/context/notecontext"
+import { Note } from "@prisma/client"
 import { useEffect } from "react"
 
 export default function HomePage() {
@@ -11,13 +13,10 @@ export default function HomePage() {
   }, [])
   return (
       <div className="flex justify-center items-center h-screen">
-        <div className="">
+        <div className="w-1/2">
           <NoteForm />
           {
-            notes?.sort((a, b) => b.id! - a.id!).map((note:any) => <div key={note.id} className="bg-slate-300 p-4 my-2">
-              <h1 className="text-2xl border-b-2 border-y-blue-800">{note.title}</h1>
-              <p>{note.content}</p>
-            </div>)
+            notes?.sort((a, b) => b.id! - a.id!).map((note:Note) => <NoteCard key={note.id} note={note} />)
           }
         </div>
       </div>
