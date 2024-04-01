@@ -1,4 +1,5 @@
 'use client'
+import { useNoteStore } from '@/context/notecontext';
 import axios from 'axios';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
@@ -10,6 +11,7 @@ export default function NoteForm() {
     title: y.string().required(),
     content: y.string(),
   });
+  const {setNote} = useNoteStore(s=>s)
 
   const { values, errors, touched, handleBlur, handleChange, handleSubmit, resetForm } = useFormik({
     initialValues: {
@@ -18,13 +20,9 @@ export default function NoteForm() {
     },
     validationSchema: Schemas,
     onSubmit:async(values) => {  
-        const resp = await axios.post('/api/notes', {
-            title: values.title,
-            content: values.content
-        })
+        setNote(values)
         resetForm()
         router.refresh()
-        console.log(resp.data)  
     },
   });
 
