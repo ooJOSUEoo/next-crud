@@ -9,6 +9,7 @@ export const useNoteStore = create(persist<{
   getNotes: () => void,
   setNote: (title:string, content:string) => void,
   deleteNote: (id:number) => void
+  updateNote: (id:number, title:string, content:string) => void
 }>((set:any,get:any) => ({
   notes: [] as Note[],
   getNotes: async() => {
@@ -22,9 +23,16 @@ export const useNoteStore = create(persist<{
     })
     set({ ...get(),notes: get().notes.concat(resp.data.note)})
   },
-  deleteNote: async(id:number) => {
+  deleteNote: async(id) => {
     const resp = await axios.delete(`/api/notes/${id}`)
     set({ ...get(),notes: get().notes.filter((note:Note) => note.id !== id)})
+  },
+  updateNote: async(id,title,content) => {
+    const resp = await axios.put(`/api/notes/${id}`, {
+        title: title,
+        content: content
+    })
+    set({ ...get(),notes: get().notes.map((note:Note) => note.id === id ? resp.data.note : note)})
   },
 }), {
   name: 'note',

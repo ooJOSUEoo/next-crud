@@ -1,7 +1,9 @@
 import { useNoteStore } from "@/context/notecontext";
 import { Note } from "@prisma/client";
+import { useRouter } from "next/navigation";
 
 export default function NoteCard({note}: {note:Note}) {
+  const route = useRouter()
   const {deleteNote} = useNoteStore(s=>s)
   return (
     <div key={note.id} className="bg-slate-300 p-4 my-2 flex justify-between">
@@ -10,7 +12,7 @@ export default function NoteCard({note}: {note:Note}) {
         <p>{note.content}</p>
       </div>
       <div className="flex gap-x-2">
-        <button>Edit</button>
+        <button onClick={() => route.push(`?id=${note.id}`)}>Edit</button>
         <button onClick={() => deleteNote(note.id!)}>Delete</button>
       </div>
     </div>

@@ -1,30 +1,46 @@
 'use client'
 import { useNoteStore } from '@/context/notecontext';
+import { Note } from '@prisma/client';
 import axios from 'axios';
 import { useFormik } from 'formik';
-import { useRouter } from 'next/navigation';
+// import { useRouter as useLocation } from 'next/router';
+import { useRouter,useSearchParams } from 'next/navigation';
 import { title } from 'process';
+import { useEffect, useState } from 'react';
 import * as y from 'yup';
 
 export default function NoteForm() {
   const router = useRouter()
+  const params = useSearchParams()
   const Schemas = y.object().shape({
     title: y.string().required('Title is required'),
     content: y.string(),
   });
-  const {setNote} = useNoteStore(s=>s)
+  const {notes, setNote, updateNote} = useNoteStore(s=>s)
 
-  const { values, errors, touched, handleBlur, handleChange, handleSubmit, resetForm } = useFormik({
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit, resetForm, setFieldValue } = useFormik({
     initialValues: {
       title: '',
       content: '',
     },
     validationSchema: Schemas,
     onSubmit:async(values) => {  
+      if(params.get('id')){
+        updateNote(Number(params.get('id')),values.title,values.content)
+      }else{
         setNote(values.title,values.content)
-        resetForm()
+      }
+      resetForm()
     },
   });
+
+  useEffect(() => {
+    const id = params.get('id')
+    if(id){
+      setFieldValue('title', notes.find((note:Note) => note.id === Number(id))?.title)
+      setFieldValue('content', notes.find((note:Note) => note.id === Number(id))?.content)
+    }
+  }, [notes, params, setFieldValue])
 
   return (
     <form onSubmit={handleSubmit}>
@@ -45,10 +61,18 @@ export default function NoteForm() {
         onChange={handleChange}
         onBlur={handleBlur}
         />
+        <div className=" flex justify-between">
         <button type="submit" 
         className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
-            Create
+            {
+              params.get('id') ? 'Update' : 'Save'
+            }
         </button>
+        {
+          params.get('id') && 
+          <button onClick={() => {resetForm();router.push('/');}} type='button' className='px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600'>x</button>
+        }
+        </div>
     </form>
   )
 }
