@@ -14,7 +14,7 @@ export default async function HomePage() {
           <div className="">
             <NoteForm />
             {
-              notes.map((note:any) => <div key={note.id} className="bg-slate-300 p-4 my-2">
+              notes.reverse().map((note:any) => <div key={note.id} className="bg-slate-300 p-4 my-2">
                 <h1 className="text-2xl border-b-2 border-y-blue-800">{note.title}</h1>
                 <p>{note.content}</p>
               </div>)
