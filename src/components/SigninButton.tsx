@@ -8,7 +8,6 @@ const SigninButton = () => {
   const { data: session, status } = useSession();
 
   if (session && session.user) {
-    console.log(session)
     return (
       <div className="flex gap-4 ml-auto items-center">
         <p className="text-sky-600">{session.user.name}</p>

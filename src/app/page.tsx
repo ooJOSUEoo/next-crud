@@ -8,7 +8,7 @@ export default function HomePage() {
   return (
       <div className="flex justify-center items-center h-screen">
         {
-          session?.user ? <Link href="/notes" className="text-blue-600">Ir a notes</Link> : <h1 className="text-red-600">No hay session</h1>
+          session?.user ? <Link href="/notes" className="text-blue-600">Go to notes</Link> : <h1 className="text-red-600">There are no sessions</h1>
         }
       </div>
   )
