@@ -11,6 +11,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^1.5.2",
     "@prisma/client": "^5.11.0",
+    "@types/swagger-ui-react": "^4.18.3",
     "auth": "^1.0.2",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
@@ -21,6 +22,7 @@
     "next-swagger-doc": "^0.4.0",
     "react": "^18",
     "react-dom": "^18",
+    "react-swagger": "^1.0.13",
     "swagger-ui-react": "^5.13.0",
     "yup": "^1.4.0",
     "zod": "^3.22.4",

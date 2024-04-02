@@ -1,6 +1,31 @@
 import { NextResponse } from "next/server";
 import {prisma} from '@/libs/prisma'
 
+/**
+ * @swagger
+ * /api/notes:
+ *   get:
+ *     description: Returns notes
+ *     responses:
+ *       200:
+ *         description: A successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 notes:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: number
+ *                       title:
+ *                         type: string
+ *                       content:
+ *                         type: string
+ */
 export async function GET (){
     try {
         const notes = await prisma.note.findMany()
@@ -12,6 +37,40 @@ export async function GET (){
     }
 }
 
+/**
+ * @swagger
+ * /api/notes:
+ *   post:
+ *     description: Creates a new note
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: A successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 note:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: number
+ *                     title:
+ *                       type: string
+ *                     content:
+ *                       type: string
+ */
 export async function POST (request: Request) {
     try {
         const {title, content} = await request.json()
