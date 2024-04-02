@@ -1,8 +1,12 @@
 'use client'
+import axios from 'axios';
 import { useFormik } from 'formik';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import * as y from 'yup';
 
 export default function RegisterPage() {
+  const router = useRouter();
   const Schemas = y.object().shape({
       username: y.string().required('Username is required'),
       email: y.string().email('Invalid email').required('Email is required'),
@@ -18,14 +22,25 @@ export default function RegisterPage() {
         confirmPassword: '',
       },
       validationSchema: Schemas,
-      onSubmit:async(values) => {  
+      onSubmit:async(values) => { 
+        const resp = await axios.post('/api/auth/register', {
+          username: values.username,
+          email: values.email,
+          password: values.password
+        });
+        console.log(resp)
+        if(resp.status === 200) {
+          resetForm();
+          router.push('/auth/login');
+          // signIn('credentials', {email: values.email, password: values.password});
+        }
       },
     });
 
   return (
     <form onSubmit={handleSubmit}>
       <div className="">
-        <input type="text" name="title" id="title" placeholder="Title"
+        <input type="text" name="username" id="username" placeholder="Username"
         className="w-full px-4 py-2 text-black bg-white rounded-md focus:outline-none focus:ring-2
         focus:ring-blue-600 my-2"
         value={values.username} 
@@ -68,10 +83,16 @@ export default function RegisterPage() {
         {errors.confirmPassword && touched.confirmPassword && <p className="text-red-500">{errors.confirmPassword}</p>}
       </div>
       
-      <button type="submit" 
-      className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
-        Login
-      </button>
+      <div className="flex flex-col">
+        <button type="submit" 
+        className="px-4 py-2 text-white bg-gray-500 rounded-md hover:bg-gray-600">
+          Login
+        </button>
+
+        {/* <button type="button" 
+        className='px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 my-2'
+        onClick={() => signIn("google", { callbackUrl: "/" })}>Google</button> */}
+      </div>
     </form>
   )
 }
