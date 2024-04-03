@@ -36,8 +36,6 @@ export default function RegisterPage() {
         }
       },
     });
-  const {status} = useSession()
-  if(status === 'authenticated') router.push('/')
 
   return (
     <div className="flex justify-center">
