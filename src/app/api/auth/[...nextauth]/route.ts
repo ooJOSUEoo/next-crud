@@ -1,26 +1,23 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import NextAuth from "next-auth"
+import NextAuth, { Profile } from "next-auth"
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import {prisma} from '@/libs/prisma'
-import { Adapter } from "next-auth/adapters";
+import { Adapter, AdapterUser } from "next-auth/adapters";
 import * as bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { Account, User } from "@prisma/client";
+import { JWT } from "next-auth/jwt";
 
-interface ExtendedToken {
-    id: string;
-    username: string | null;
-    password: string | null;
-    name: string | null;
-    email: string | null;
-    emailVerified: Date | null;
-    image: string | null;
-    role: string | null;
-    createAt: Date;
-    updatedAt: Date;
-    accessToken?: string; // Agrega la propiedad accessToken opcional
+declare module "next-auth" {
+    interface Session {
+      user: User;
+    }
 }
 
+interface JWTWithAccessToken extends JWT {
+accessToken?: string;
+}
 const handler = NextAuth({
     session: {
         strategy: 'jwt',
@@ -67,9 +64,9 @@ const handler = NextAuth({
         
     ],
     callbacks: {
-        async jwt({ token, user, account, profile, isNewUser, trigger, session }) {
+        async jwt({ token, user, }) {
             if (user) {
-                const extendedToken = token as ExtendedToken;
+                const extendedToken = token as JWTWithAccessToken;
                 extendedToken.accessToken = jwt.sign({
                     id: user.id
                 }, process.env.NEXT_PUBLIC_JWT_SECRET as string, { expiresIn: '1h' }); // Puedes personalizar la duración del token
