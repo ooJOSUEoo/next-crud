@@ -2,6 +2,7 @@ import { useNoteStore } from "@/context/notecontext";
 import { Note, User } from "@prisma/client";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -26,14 +27,24 @@ export default function NoteCard({note}: {note:Note}) {
   return (
     <div key={note.id} className="bg-slate-300 p-4 my-2 flex justify-between">
       <div className="">
-        <p>{user?.name}</p>
-        <h1 className="text-2xl border-b-2 border-y-blue-800">{note.title}</h1>
+        <div className="flex gap-2 items-center justify-start">
+          <Image
+            src={user?.image ?? ""}
+            alt={user?.name ?? ""}
+            className=" rounded-full"
+            width={32}
+            height={32}
+          />
+          <p>{user?.name}</p>
+        </div>
+        <h1 className="text-2xl">{note.title}</h1>
+        <hr className="h-0.5 w-full bg-gray-500" />
         <p className="text-lg">{note.content}</p>
         <p className="text-l text-gray-500">{note.updatedAt.toString().split('T')[0]}</p>
       </div>
       <div className="flex gap-x-2">
-        <button onClick={() => route.push(`?id=${note.id}`)}>Edit</button>
-        <button onClick={() => deleteNote(note.id!,session?.user?.accessToken)}>Delete</button>
+        <button className="text-blue-700" onClick={() => route.push(`?id=${note.id}`)}>Edit</button>
+        <button className="text-red-500" onClick={() => deleteNote(note.id!,session?.user?.accessToken)}>Delete</button>
       </div>
     </div>
   )

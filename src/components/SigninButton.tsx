@@ -14,9 +14,9 @@ const SigninButton = () => {
       <div className="flex gap-4 ml-auto items-center">
         <p className="text-sky-600">{session.user.name}</p>
         {
-          session.user.image && 
+          session.user.picture && 
           <Image
-            src={session.user.image ?? ""}
+            src={session.user.picture ?? ""}
             alt={session.user.name ?? ""}
             className=" rounded-full"
             width={32}
