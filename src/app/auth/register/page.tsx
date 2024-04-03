@@ -1,7 +1,7 @@
 'use client'
 import axios from 'axios';
 import { useFormik } from 'formik';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import * as y from 'yup';
 
@@ -36,6 +36,8 @@ export default function RegisterPage() {
         }
       },
     });
+  const {status} = useSession()
+  if(status === 'authenticated') router.push('/')
 
   return (
     <div className="flex justify-center">

@@ -6,7 +6,7 @@ import {prisma} from '@/libs/prisma'
 import { Adapter, AdapterUser } from "next-auth/adapters";
 import * as bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { Account, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
@@ -18,10 +18,15 @@ declare module "next-auth" {
 interface JWTWithAccessToken extends JWT {
 accessToken?: string;
 }
+
+const expireSession = new Date(Date.now() + 1000 * 60 * 60)//1 hour
+const expireJWT = '1h'
+
 const handler = NextAuth({
     session: {
         strategy: 'jwt',
     },
+    // adapter: PrismaAdapter(prisma) as Adapter,
     adapter: PrismaAdapter(prisma) as Adapter,
     providers: [
         GoogleProvider({
@@ -61,7 +66,6 @@ const handler = NextAuth({
                 return userFound
             }
         }),
-        
     ],
     callbacks: {
         async jwt({ token, user, }) {
@@ -69,13 +73,40 @@ const handler = NextAuth({
                 const extendedToken = token as JWTWithAccessToken;
                 extendedToken.accessToken = jwt.sign({
                     id: user.id
-                }, process.env.NEXT_PUBLIC_JWT_SECRET as string, { expiresIn: '1h' }); // Puedes personalizar la duración del token
+                }, process.env.NEXT_PUBLIC_JWT_SECRET as string, { expiresIn: expireJWT }); // Puedes personalizar la duración del token
                 return extendedToken;
             }
             return token;
         },
-        async session({ session, token }) {
+        async session({ session, token }:{
+            session: any,
+            token: JWT
+        }) {
           session.user = token as any;
+          const sessionToken = session.user.accessToken;
+          const userFind = await prisma.user.findUnique({
+            where: {
+              email: session.user.email
+            }
+          })
+          const sessionFind = await prisma.session.findUnique({
+            where: {
+              sessionToken: sessionToken
+            }
+          })
+          await prisma.session.upsert({
+            where: {
+              sessionToken: sessionToken
+            },
+            update: {
+              expires: expireSession
+            },
+            create: { 
+              userId: userFind!.id,
+              expires: expireSession,
+              sessionToken: sessionToken,
+            }
+          });
           return session;
         },
     },

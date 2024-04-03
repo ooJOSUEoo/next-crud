@@ -13,12 +13,19 @@ export const useNoteStore = create(persist<{
 }>((set:any,get:any) => ({
   notes: [] as Note[],
   getNotes: async(token) => {
-    const resp = await axios.get('http://localhost:3000/api/notes',{
-      headers: {
-        'Authorization': `Token ${token}`
+    try {
+      const resp = await axios.get('http://localhost:3000/api/notes',{
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      })
+      set({ ...get(),notes: resp.data.notes})
+    } catch (error:any) {
+      console.log("error: ", error)
+      if(error.response.data.error.includes('expired')){
+        set({ ...get(),notes: []})
       }
-    })
-    set({ ...get(),notes: resp.data.notes})
+    }
   },
   setNote: async(title,content, token) => {
     const resp = await axios.post('/api/notes', {

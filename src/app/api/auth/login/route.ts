@@ -7,11 +7,13 @@ import * as jwt from 'jsonwebtoken';
 //api/auth/login
 export async function POST(request:Request) {
     try {
-        const { type, email, password, data } = await request.json();
+        const data = await request.json();
         const expireSession = new Date(Date.now() + 1000 * 60 * 60)//1 hour
-        switch (type) {
+        const expireJWT = '1h'
+        switch (data.type) {
             case "credentials":
                 try {
+                    const { email, password } = data
                     const userFound = await prisma.user.findUnique({
                         where: {
                             email
@@ -24,34 +26,15 @@ export async function POST(request:Request) {
     
                     const token = jwt.sign({
                         id: userFound.id,
-                    }, process.env.NEXT_PUBLIC_JWT_SECRET as string, { expiresIn: '1h' });
+                    }, process.env.NEXT_PUBLIC_JWT_SECRET as string, { expiresIn: expireJWT });
 
-                    const sessionFind = await prisma.session.findMany({
-                        where: {
+                    const sessionCreate = await prisma.session.create({
+                        data: {
                             userId: userFound.id,
+                            sessionToken: token,
+                            expires: expireSession
                         }
                     })
-
-                    if(sessionFind){
-                        const sessionUpdate = await prisma.session.update({
-                            where: {
-                                id: sessionFind[0].id
-                            },
-                            data: {
-                                sessionToken: token,
-                                expires: expireSession
-                            }
-                        })
-                    }else{
-                        const sessionCreate = await prisma.session.create({
-                            data: {
-                                userId: userFound.id,
-                                sessionToken: token,
-                                expires: expireSession
-                            }
-                        })
-                    }
-    
                     return NextResponse.json({ user: userFound, token }, { status: 200 });
                 } catch (error) {
                     return NextResponse.json({ message: "An error occurred during login", error }, { status: 500 });
@@ -59,7 +42,34 @@ export async function POST(request:Request) {
                 
             case "google":
                 try {
+                    const { email, name, image } = data
+                    let userFound = await prisma.user.findUnique({
+                        where: {
+                            email: email
+                        }
+                    });
+                    if (!userFound?.id) {
+                        userFound = await prisma.user.create({
+                            data: {
+                                email: email,
+                                name: name,
+                                image: image,
+                            }
+                        });
+                    }
+                    const token = jwt.sign({
+                        id: userFound?.id,
+                    }, process.env.NEXT_PUBLIC_JWT_SECRET as string, { expiresIn: expireJWT });
+
+                    const sessionCreate = await prisma.session.create({
+                        data: {
+                            userId: userFound!.id,
+                            sessionToken: token,
+                            expires: expireSession
+                        }
+                    })    
                     
+                    return NextResponse.json({ user: userFound, token }, { status: 200 });
                 } catch (error) {
                     return NextResponse.json({ message: "An error occurred during login", error }, { status: 500 });
                 }
