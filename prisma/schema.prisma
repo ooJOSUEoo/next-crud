@@ -32,7 +32,7 @@ model Account {
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
-  userId       String
+  userId       String 
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -48,6 +48,8 @@ model User {
   role          String?
   accounts      Account[]
   sessions      Session[]
+
+  notes         Note[]
 
   createAt  DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -65,6 +67,8 @@ model Note {
   id        Int @id @default(autoincrement())
   title     String
   content   String?
+  userId    String?
+  user      User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createAt  DateTime @default(now())
   updatedAt DateTime @updatedAt

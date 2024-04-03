@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 export default function NoteCard({note}: {note:Note}) {
   const route = useRouter()
   const {deleteNote} = useNoteStore(s=>s)
+  const {userId} = note
+  const getUser = () => {
+    return fetch(`/api/users/${userId}`)
+  }
   return (
     <div key={note.id} className="bg-slate-300 p-4 my-2 flex justify-between">
       <div className="">

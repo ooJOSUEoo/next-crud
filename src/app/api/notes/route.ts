@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import {prisma} from '@/libs/prisma'
+import authenticate from '@/middlewares/authenticate';
+
 
 /**
  * @swagger
@@ -26,7 +28,10 @@ import {prisma} from '@/libs/prisma'
  *                       content:
  *                         type: string
  */
-export async function GET (){
+export async function GET (request: Request) {
+    const {error,status} = await authenticate(request);
+    if (error) return NextResponse.json({error}, {status})
+
     try {
         const notes = await prisma.note.findMany()
         return NextResponse.json({notes}, {status: 200})
@@ -72,12 +77,16 @@ export async function GET (){
  *                       type: string
  */
 export async function POST (request: Request) {
+    const {error,status,userId} = await authenticate(request);
+    if (error) return NextResponse.json({error}, {status})
+
     try {
         const {title, content} = await request.json()
         const note = await prisma.note.create({
             data: {
                 title,
-                content
+                content,
+                userId
             }
         })
         return NextResponse.json({note}, {status: 200})

@@ -5,7 +5,21 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import {prisma} from '@/libs/prisma'
 import { Adapter } from "next-auth/adapters";
 import * as bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
+interface ExtendedToken {
+    id: string;
+    username: string | null;
+    password: string | null;
+    name: string | null;
+    email: string | null;
+    emailVerified: Date | null;
+    image: string | null;
+    role: string | null;
+    createAt: Date;
+    updatedAt: Date;
+    accessToken?: string; // Agrega la propiedad accessToken opcional
+}
 
 const handler = NextAuth({
     session: {
@@ -47,22 +61,24 @@ const handler = NextAuth({
                 const matchPassword = credentials?.password && userFound.password && await bcrypt.compare(credentials?.password, userFound.password)
                 if(!matchPassword) throw new Error('No user found')
 
-                return {
-                    id: userFound.id,
-                    name: userFound.name,
-                    email: userFound.email,
-                    image: userFound.image,
-                }
+                return userFound
             }
         }),
         
     ],
     callbacks: {
-        async jwt({ token, user }) {
-          return { ...token, ...user };
+        async jwt({ token, user, account, profile, isNewUser, trigger, session }) {
+            if (user) {
+                const extendedToken = token as ExtendedToken;
+                extendedToken.accessToken = jwt.sign({
+                    id: user.id
+                }, process.env.NEXT_PUBLIC_JWT_SECRET as string, { expiresIn: '1h' }); // Puedes personalizar la duración del token
+                return extendedToken;
+            }
+            return token;
         },
         async session({ session, token }) {
-          session.user.role = token.role;
+          session.user = token as any;
           return session;
         },
     },
@@ -70,5 +86,5 @@ const handler = NextAuth({
         signIn: '/auth/login',
     }
 });
-
+//api/auth/[...nextAuth]
 export { handler as GET, handler as POST }

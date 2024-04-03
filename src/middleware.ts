@@ -4,3 +4,4 @@ export const config = {
 
     matcher: ['/notes', '/notes/:path*'],
 }
+

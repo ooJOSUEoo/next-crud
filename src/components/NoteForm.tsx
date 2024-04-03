@@ -70,7 +70,7 @@ export default function NoteForm() {
         </button>
         {
           params.get('id') && 
-          <button onClick={() => {resetForm();router.push('/');}} type='button' className='px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600'>x</button>
+          <button onClick={() => {resetForm();router.push('/notes');}} type='button' className='px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600'>x</button>
         }
         </div>
     </form>
