@@ -23,6 +23,7 @@ const expireSession = new Date(Date.now() + 1000 * 60 * 60)//1 hour
 const expireJWT = '1h'
 
 const handler = NextAuth({
+    secret: process.env.NEXT_PUBLIC_SECRET,
     session: {
         strategy: 'jwt',
     },
