@@ -14,7 +14,7 @@ export const useNoteStore = create(persist<{
   notes: [] as Note[],
   getNotes: async(token) => {
     try {
-      const resp = await axios.get('http://localhost:3000/api/notes',{
+      const resp = await axios.get('/api/notes',{
         headers: {
           'Authorization': `Token ${token}`
         }
