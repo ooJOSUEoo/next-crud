@@ -15,11 +15,9 @@ export default function NotesPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status])
 
-  if(status === 'loading'){
-    return <div className="flex justify-center items-center h-screen text-white">Loading...</div>
-  }
+
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center">
         <div className="w-1/2">
           <NoteForm />
           {
