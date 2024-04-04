@@ -11,7 +11,7 @@ export default function NoteCard({note}: {note:Note}) {
   const {deleteNote} = useNoteStore(s=>s)
   const {userId} = note
   const [user, setUser] = useState<User>()
-  const {data: session}:any = useSession()
+  const {data: session}:any= useSession()
 
 
   useEffect(() => {
@@ -42,10 +42,13 @@ export default function NoteCard({note}: {note:Note}) {
         <p className="text-lg">{note.content}</p>
         <p className="text-l text-gray-500">{note.updatedAt.toString().split('T')[0]}</p>
       </div>
-      <div className="flex gap-x-2">
-        <button className="text-blue-700" onClick={() => route.push(`?id=${note.id}`)}>Edit</button>
-        <button className="text-red-500" onClick={() => deleteNote(note.id!,session?.user?.accessToken)}>Delete</button>
-      </div>
+        {
+          session?.user?.id === note.userId &&
+            <div className="flex gap-x-2">
+              <button className="text-blue-700" onClick={() => route.push(`?id=${note.id}`)}>Edit</button>
+              <button className="text-red-500" onClick={() => deleteNote(note.id!,session?.user?.accessToken)}>Delete</button>
+            </div>
+        }
     </div>
   )
 }
