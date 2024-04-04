@@ -14,8 +14,8 @@ export default function NoteForm() {
   const router = useRouter()
   const params = useSearchParams()
   const Schemas = y.object().shape({
-    title: y.string().required('Title is required'),
-    content: y.string(),
+    title: y.string().required('Title is required').max(100, 'Title is too long'),
+    content: y.string().max(1000, 'Content is too long'),
   });
   const {notes, setNote, updateNote} = useNoteStore(s=>s)
   const {data: session}:any = useSession()
@@ -39,10 +39,15 @@ export default function NoteForm() {
   useEffect(() => {
     const id = params.get('id')
     if(id){
-      setFieldValue('title', notes.find((note:Note) => note.id === Number(id))?.title)
-      setFieldValue('content', notes.find((note:Note) => note.id === Number(id))?.content)
+      const note = notes.find((note:Note) => note.id === Number(id))
+      if(note?.userId !== session?.user?.id) {
+        resetForm()
+        return router.push('/notes')
+      }
+      setFieldValue('title', note?.title)
+      setFieldValue('content', note?.content)
     }
-  }, [notes, params, setFieldValue])
+  }, [notes, params, router, session?.user?.sub, setFieldValue])
 
   return (
     <form onSubmit={handleSubmit}>
@@ -63,6 +68,7 @@ export default function NoteForm() {
         onChange={handleChange}
         onBlur={handleBlur}
         />
+        {errors.content && touched.content && <p className="text-red-500">{errors.content}</p>}
         <div className=" flex justify-between">
         <button type="submit" 
         className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">

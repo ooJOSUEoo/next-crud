@@ -72,6 +72,7 @@ const handler = NextAuth({
         async jwt({ token, user, }) {
             if (user) {
                 const extendedToken = token as JWTWithAccessToken;
+                extendedToken.id = user.id
                 extendedToken.accessToken = jwt.sign({
                     id: user.id
                 }, process.env.NEXT_PUBLIC_JWT_SECRET as string, { expiresIn: expireJWT }); // Puedes personalizar la duración del token

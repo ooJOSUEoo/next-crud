@@ -28,7 +28,7 @@ export async function GET (request: Request, {params}: Params) {
 }
 
 export async function DELETE (request: Request, {params}: Params) {
-    const {error,status} = await authenticate(request);
+    const {error,status,userId} = await authenticate(request);
     if (error) return NextResponse.json({error}, {status})
     try {
         const note = await prisma.note.delete({
@@ -36,6 +36,7 @@ export async function DELETE (request: Request, {params}: Params) {
                 id: Number(params.id)
             }
         })
+        if(note.userId !== userId) return NextResponse.json({message: 'You are not authorized to delete this note'}, {status: 401})
         if(!note?.id) return NextResponse.json({message: 'Note not found'}, {status: 404})
         return NextResponse.json({note, message: 'Note deleted'}, {status: 200})
     } catch (error) {
@@ -49,7 +50,7 @@ export async function DELETE (request: Request, {params}: Params) {
 }
 
 export async function PUT (request: Request, {params}: Params) {
-    const {error,status} = await authenticate(request);
+    const {error,status, userId} = await authenticate(request);
     if (error) return NextResponse.json({error}, {status})
     try {
         const {title, content} = await request.json()
@@ -62,6 +63,7 @@ export async function PUT (request: Request, {params}: Params) {
                 content
             }
         })
+        if(note.userId !== userId) return NextResponse.json({message: 'You are not authorized to update this note'}, {status: 401})
         if(!note?.id) return NextResponse.json({message: 'Note not found'}, {status: 404})
         return NextResponse.json({note}, {status: 200})
     } catch (error) {

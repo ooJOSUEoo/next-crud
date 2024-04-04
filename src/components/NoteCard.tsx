@@ -29,9 +29,9 @@ export default function NoteCard({note}: {note:Note}) {
       <div className="">
         <div className="flex gap-2 items-center justify-start">
           <Image
-            src={user?.image ?? ""}
-            alt={user?.name ?? ""}
-            className=" rounded-full"
+            src={user?.image ?? "https://cdn1.iconfinder.com/data/icons/social-object-set-5-3/74/15-512.png"}
+            alt={user?.name ?? "User"}
+            className=" rounded-full border-gray-600 border-2"
             width={32}
             height={32}
           />
@@ -46,7 +46,7 @@ export default function NoteCard({note}: {note:Note}) {
           session?.user?.id === note.userId &&
             <div className="flex gap-x-2">
               <button className="text-blue-700" onClick={() => route.push(`?id=${note.id}`)}>Edit</button>
-              <button className="text-red-500" onClick={() => deleteNote(note.id!,session?.user?.accessToken)}>Delete</button>
+              <button className="text-red-500" onClick={() => confirm('Are you sure?') && deleteNote(note.id!,session?.user?.accessToken)}>Delete</button>
             </div>
         }
     </div>

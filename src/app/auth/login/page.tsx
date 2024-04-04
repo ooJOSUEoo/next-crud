@@ -9,8 +9,8 @@ import * as y from 'yup';
 export default function LoginPage() {
   const router = useRouter();
   const Schemas = y.object().shape({
-      email: y.string().email('Invalid email').required('Email is required'),
-      password: y.string().required('Password is required'),
+      email: y.string().email('Invalid email').required('Email is required').max(50, 'Email is too long'),
+      password: y.string().required('Password is required').max(20, 'Password is too long'),
     });
   const [error, setError] = useState('')
   const { values, errors, touched, handleBlur, handleChange, handleSubmit, resetForm, setFieldValue } = useFormik({

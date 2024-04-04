@@ -17,7 +17,7 @@ export default function NotesPage() {
 
 
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center mt-2">
         <div className="w-1/2">
           <NoteForm />
           {

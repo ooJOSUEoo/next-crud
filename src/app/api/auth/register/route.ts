@@ -65,13 +65,13 @@ export async function POST(request:Request) {
                 email: data.email,
             }
         })
-        const foundUsername = await prisma.user.findUnique({
-            where: {
-                username: data.username,
-            }
-        })
+        // const foundUsername = await prisma.user.findUnique({
+        //     where: {
+        //         username: data.username,
+        //     }
+        // })
         if(foundEmail) return NextResponse.json({error: 'Email already exists'}, {status: 400});
-        if(foundUsername) return NextResponse.json({error: 'Username already exists'}, {status: 400});
+        // if(foundUsername) return NextResponse.json({error: 'Username already exists'}, {status: 400});
         data.password = await bcrypt.hash(data.password, 10);
         const user = await prisma.user.create({
             data
