@@ -5,12 +5,13 @@ import {prisma} from '@/libs/prisma'
 
 export async function POST(request:Request) {
     const {error,status,token,userId} = await authenticate(request);
-    if (!error?.includes('expired')) return NextResponse.json({error}, {status})
+    console.log(error, status)
+    if (error && !error?.includes('expired')) return NextResponse.json({error}, {status})
     try {
         await prisma.session.delete({
             where: {
-                userId: userId,
-                sessionToken: token
+                sessionToken: token as string,
+                userId
             }
         })
         return NextResponse.json({message: 'Logout successful'}, {status: 200})

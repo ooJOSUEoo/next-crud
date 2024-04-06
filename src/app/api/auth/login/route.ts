@@ -9,7 +9,7 @@ export async function POST(request:Request) {
     try {
         const data = await request.json();
         const expireSession = new Date(Date.now() + 1000 * 60 * 60)//1 hour
-        const expireJWT = '1h'
+        const expireJWT = process.env.NEXT_PUBLIC_JWT_EXPIRES_IN as string ?? '1h'
         switch (data.type) {
             case "credentials":
                 try {

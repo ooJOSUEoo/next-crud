@@ -7,14 +7,21 @@ export default async function authenticate(request: NextRequest|Request) {
   const token = request.headers.get('Authorization')?.split(' ')[1];
 
   if (!token) {
-    return { error: 'Token authentication not provided', status: 401 };
+    return { error: 'Token authentication not provided', status: 404 };
   }
   try {
       // Verificar la validez del token
       const decodedToken = jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET as string) as JwtPayload;
-      if(!decodedToken.id) return { error: 'Token invalid', status: 401 }
+      if(!decodedToken.id) return { error: 'Token invalid', token, status: 401 }
       
       const userId = decodedToken.id
+
+      const userFind = await prisma.user.findUnique({
+          where: {
+            id: userId
+          }
+      })
+      if(!userFind) return { error: 'User not found', token, status: 404 }
 
       const exitsSession = await prisma.session.findMany({
           where: {
@@ -23,7 +30,7 @@ export default async function authenticate(request: NextRequest|Request) {
           }
       })
       if(exitsSession.length === 0){
-        return { error:  'Does not exist a session with this token', status: 401}
+        return { error:  'Does not exist a session with this token', token, status: 404}
       }
 
       return {
@@ -36,12 +43,14 @@ export default async function authenticate(request: NextRequest|Request) {
       if( error instanceof Error && error.name === 'TokenExpiredError') {
           return {
               error: 'The token has expired',
+              token,
               status: 401
           }
       }
       else{
         return {
-            error:  'Autentication failed',
+            error:  'Autentication failed, error: ' + error,
+            token,
             status: 401
         }
       }
